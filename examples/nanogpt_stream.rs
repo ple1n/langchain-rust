@@ -2,13 +2,14 @@ use futures::StreamExt;
 use langchain_rust::{
     chain::{Chain, LLMChainBuilder},
     fmt_message, fmt_template,
-    llm::{openai::OpenAI, OpenAIConfig},
     message_formatter,
     prompt::HumanMessagePromptTemplate,
     prompt_args,
     schemas::messages::Message,
     template_fstring,
 };
+
+use langchain_rust::llm::nanogpt::*;
 
 use dotenvy::{self, dotenv};
 use tracing::Level;
