@@ -3,12 +3,7 @@
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-// #[derive(Error, Debug, Serialize, Deserialize, Clone)]
-// pub enum NanoGPTError {
-//     #[error("Nanogpt {0:?}")]
-//     EndOfRequest,
-// }
-
+pub mod nano;
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NanoGPTResponse {
     nanoGPT: NanoGPTRequestBilling,
@@ -23,6 +18,8 @@ pub struct NanoGPTRequestBilling {
 }
 
 use std::pin::Pin;
+
+
 
 pub use async_openai::config::{AzureConfig, Config, OpenAIConfig};
 
@@ -79,13 +76,13 @@ impl Into<String> for OpenAIModel {
 }
 
 #[derive(Clone)]
-pub struct OpenAI<C: Config + Clone> {
+pub struct NanoGPT<C: Config + Clone> {
     config: C,
     options: CallOptions,
     model: String,
 }
 
-impl<C: Config + Clone> OpenAI<C> {
+impl<C: Config + Clone> NanoGPT<C> {
     pub fn new(config: C) -> Self {
         Self {
             config,
@@ -110,14 +107,14 @@ impl<C: Config + Clone> OpenAI<C> {
     }
 }
 
-impl Default for OpenAI<OpenAIConfig> {
+impl Default for NanoGPT<OpenAIConfig> {
     fn default() -> Self {
         Self::new(OpenAIConfig::default())
     }
 }
 
 #[async_trait]
-impl<C: Config + Send + Sync + 'static + Clone> LLM for OpenAI<C> {
+impl<C: Config + Send + Sync + 'static + Clone> LLM for NanoGPT<C> {
     async fn generate(&self, prompt: &[Message]) -> Result<GenerateResult, LLMError> {
         let client = Client::with_config(self.config.clone());
         let request = self.generate_request(prompt, self.options.streaming_func.is_some())?;
@@ -254,7 +251,7 @@ pub fn handle_nano_specific(err: OpenAIError) -> LLMError {
     }
 }
 
-impl<C: Config + Clone> OpenAI<C> {
+impl<C: Config + Clone> NanoGPT<C> {
     fn to_openai_messages(
         &self,
         messages: &[Message],
@@ -404,7 +401,7 @@ mod tests {
         };
         let options = CallOptions::new().with_streaming_func(streaming_func);
         // Setup the OpenAI client with the necessary options
-        let open_ai = OpenAI::new(OpenAIConfig::default())
+        let open_ai = NanoGPT::new(OpenAIConfig::default())
             .with_model(OpenAIModel::Gpt35.to_string()) // You can change the model as needed
             .with_options(options);
 
@@ -450,7 +447,7 @@ mod tests {
         // Define the streaming function as an async block without capturing external references directly
         let options = CallOptions::new().with_streaming_func(streaming_func);
         // Setup the OpenAI client with the necessary options
-        let open_ai = OpenAI::new(OpenAIConfig::default())
+        let open_ai = NanoGPT::new(OpenAIConfig::default())
             .with_model(OpenAIModel::Gpt35.to_string()) // You can change the model as needed
             .with_options(options);
 
@@ -475,7 +472,7 @@ mod tests {
     #[ignore]
     async fn test_openai_stream() {
         // Setup the OpenAI client with the necessary options
-        let open_ai = OpenAI::default().with_model(OpenAIModel::Gpt35.to_string());
+        let open_ai = NanoGPT::default().with_model(OpenAIModel::Gpt35.to_string());
 
         // Define a set of messages to send to the generate function
         let messages = vec![Message::new_human_message("Hello, how are you?")];
@@ -516,7 +513,7 @@ mod tests {
             }),
         });
 
-        let llm = OpenAI::default()
+        let llm = NanoGPT::default()
             .with_model(OpenAIModel::Gpt35)
             .with_config(OpenAIConfig::new())
             .with_options(CallOptions::new().with_functions(functions));
@@ -532,7 +529,7 @@ mod tests {
     async fn test_generate_with_image_message() {
         // Setup the OpenAI client with the necessary options
         let open_ai =
-            OpenAI::new(OpenAIConfig::default()).with_model(OpenAIModel::Gpt4o.to_string());
+            NanoGPT::new(OpenAIConfig::default()).with_model(OpenAIModel::Gpt4o.to_string());
 
         // Convert image to base64
         let image = std::fs::read("./src/llm/test_data/example.jpg").unwrap();

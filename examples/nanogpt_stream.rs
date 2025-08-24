@@ -32,7 +32,7 @@ async fn main() {
         .with_api_base("https://nano-gpt.com/api/v1")
         .with_api_key(dotenvy::var("NANOGPT_KEY").expect("provide key"));
 
-    let open_ai = OpenAI::default()
+    let open_ai = NanoGPT::default()
         .with_config(nano_config)
         .with_model("deepseek-ai/DeepSeek-V3.1:thinking");
 
