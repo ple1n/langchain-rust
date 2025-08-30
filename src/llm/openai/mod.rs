@@ -1,6 +1,6 @@
 use std::pin::Pin;
 
-pub use async_openai::config::{AzureConfig, Config, OpenAIConfig};
+pub use async_openai::config::*;
 
 use async_openai::types::{ChatCompletionToolChoiceOption, ResponseFormat};
 use async_openai::{

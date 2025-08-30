@@ -408,6 +408,7 @@ mod tests {
         // Define a set of messages to send to the generate function
 
         // Call the generate function
+
         match open_ai.invoke("hola").await {
             Ok(result) => {
                 // Print the response from the generate function
